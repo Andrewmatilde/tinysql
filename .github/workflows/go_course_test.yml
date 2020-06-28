@@ -26,3 +26,6 @@ jobs:
 
     - name: Test proj1
       run: go test -v ./tablecodec
+    
+    - name: Test proj2
+      run: go test -v ./parser -check.f TestDMLStmt
