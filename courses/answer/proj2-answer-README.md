@@ -6,7 +6,7 @@
 
 第一，编译附送的goyacc工具，相信很多人会既没看Makefile也没看到有个goyacc文件夹
 
-第二，编写JoinTable相关的代码
+第二，编写JoinTable相关的代码，基本上照着MySQL的文档写就行了，制导翻译部分去看看ast的定义填就行
 
 ## 推荐材料
 
