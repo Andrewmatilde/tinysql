@@ -3,7 +3,7 @@
 ## 概览
 
 在这一小节我们将学习 Hash Join 及其实现，并且从这一小节开始我们将接触并发计算
-。Hash Join 是实现 Join 的一种常见方式，除此之外 TinySQL 还实现了与 Merge Sort 思想较类似的 [Merge Join](https://github.com/pingcap-incubator/tinysql/blob/master/executor/merge_join.go#L24)，感兴趣可以自行阅读。
+。Hash Join 是实现 Join 的一种常见方式，除此之外 TinySQL 还实现了与 Merge Sort 思想较类似的 [Merge Join](https://github.com/pingcap-incubator/tinysql/blob/course/executor/merge_join.go#L24)，感兴趣可以自行阅读。
 
 ## Hash Join 算法简介
 
@@ -82,7 +82,7 @@ Outer Fetcher 是一个后台 goroutine，他的主要计算逻辑在 fetchOuter
 
 ## 作业
 
-实现 [runJoinWorker](https://github.com/pingcap-incubator/tinysql/blob/hash-join/executor/join.go#L243) 以及 [fetchAndBuildHashTable](https://github.com/pingcap-incubator/tinysql/blob/hash-join/executor/join.go#L148)。
+实现 [runJoinWorker](https://github.com/pingcap-incubator/tinysql/blob/course/executor/join.go#L243) 以及 [fetchAndBuildHashTable](https://github.com/pingcap-incubator/tinysql/blob/course/executor/join.go#L148)。
 
 ## 测试
 
