@@ -14,7 +14,9 @@
 package statistics
 
 import (
+	"github.com/cznic/sortutil"
 	"reflect"
+	"sort"
 
 	"github.com/pingcap/errors"
 	"github.com/pingcap/tidb/sessionctx/stmtctx"
@@ -50,6 +52,10 @@ func (c *CMSketch) InsertBytes(bytes []byte) {
 // insertBytesByCount adds the bytes value into the TopN (if value already in TopN) or CM Sketch by delta, this does not updates c.defaultValue.
 func (c *CMSketch) insertBytesByCount(bytes []byte, count uint64) {
 	// TODO: implement the insert method.
+	for i := int32(0); i < c.depth; i++ {
+		h := murmur3.Sum32WithSeed(bytes, uint32(i)) % uint32(c.width)
+		c.table[i][h] += uint32(count)
+	}
 }
 
 func (c *CMSketch) queryValue(sc *stmtctx.StatementContext, val types.Datum) (uint64, error) {
@@ -62,13 +68,32 @@ func (c *CMSketch) queryValue(sc *stmtctx.StatementContext, val types.Datum) (ui
 
 // QueryBytes is used to query the count of specified bytes.
 func (c *CMSketch) QueryBytes(d []byte) uint64 {
-	h1, h2 := murmur3.Sum128(d)
-	return c.queryHashValue(h1, h2)
+	return c.queryHashValue(d)
 }
 
-func (c *CMSketch) queryHashValue(h1, h2 uint64) uint64 {
+func (c *CMSketch) queryHashValue(bytes []byte) uint64 {
 	// TODO: implement the query method.
-	return uint64(0)
+	e := make([]uint64, c.depth)
+	for i := int32(0); i < c.depth; i++ {
+		h := murmur3.Sum32WithSeed(bytes, uint32(i)) % uint32(c.width)
+		temp := uint64(c.table[i][h])
+
+		lineSum := uint64(0)
+		for j := int32(0); j < c.width; j++ {
+			lineSum += uint64(c.table[i][j])
+		}
+
+		noise := (lineSum - temp) / uint64(c.width-1)
+		if temp < noise {
+			e[i] = 0
+		} else {
+			e[i] = temp - noise
+		}
+	}
+
+	sort.Sort(sortutil.Uint64Slice(e))
+
+	return (e[(c.depth-1)>>1] + e[(c.depth-1)>>1]) >> 1
 }
 
 // MergeCMSketch merges two CM Sketch.

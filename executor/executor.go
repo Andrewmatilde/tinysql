@@ -379,7 +379,7 @@ func (e *SelectionExec) Close() error {
 // Next implements the Executor Next interface.
 func (e *SelectionExec) Next(ctx context.Context, req *chunk.Chunk) error {
 	req.GrowAndReset(e.maxChunkSize)
-
+	//TODO:
 	if !e.batched {
 		return e.unBatchedNext(ctx, req)
 	}
@@ -389,11 +389,21 @@ func (e *SelectionExec) Next(ctx context.Context, req *chunk.Chunk) error {
 			1. the `req` chunk` is full.
 			2. there is no further results from child.
 			3. meets any error.
-	 */
+	*/
 	for {
 		// Fill in the `req` util it is full or the `inputIter` is fully processed.
 		for ; e.inputRow != e.inputIter.End(); e.inputRow = e.inputIter.Next() {
 			// Your code here.
+			selected, _, err := expression.EvalBool(e.ctx, e.filters, e.inputRow)
+			if err != nil {
+				return err
+			}
+			if selected {
+				req.AppendRow(e.inputRow)
+			}
+			if req.IsFull() {
+				return nil
+			}
 		}
 		err := Next(ctx, e.children[0], e.childResult)
 		if err != nil {
@@ -405,7 +415,13 @@ func (e *SelectionExec) Next(ctx context.Context, req *chunk.Chunk) error {
 		}
 		/* Your code here.
 		   Process and filter the child result using `expression.VectorizedFilter`.
-		 */
+		*/
+
+		e.selected, err = expression.VectorizedFilter(e.ctx, e.filters, e.inputIter, e.selected)
+		if err != nil {
+			return err
+		}
+		e.inputRow = e.inputIter.Begin()
 	}
 }
 
