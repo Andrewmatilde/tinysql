@@ -71,8 +71,20 @@ func EncodeRowKeyWithHandle(tableID int64, handle int64) kv.Key {
 
 // DecodeRecordKey decodes the key and gets the tableID, handle.
 func DecodeRecordKey(key kv.Key) (tableID int64, handle int64, err error) {
-	/* Your code here */
-	return
+	var leftOverSlice []byte
+	if len(key) != RecordRowKeyLen {
+		return 0, 0, errors.New("invalid key")
+	}
+	if leftOverSlice, tableID, err = codec.DecodeInt(key[tablePrefixLength : tablePrefixLength+idLen]); len(leftOverSlice) != 0 {
+		return 0, 0, errors.New("invalid table ID")
+	}
+	if err != nil {
+		return 0, 0, err
+	}
+	if leftOverSlice, handle, err = codec.DecodeInt(key[prefixLen : prefixLen+idLen]); len(leftOverSlice) != 0 {
+		return 0, 0, errors.New("invalid handle")
+	}
+	return tableID, handle, err
 }
 
 // appendTableIndexPrefix appends table index prefix  "t[tableID]_i".
@@ -94,7 +106,26 @@ func EncodeIndexSeekKey(tableID int64, idxID int64, encodedValue []byte) kv.Key 
 
 // DecodeIndexKeyPrefix decodes the key and gets the tableID, indexID, indexValues.
 func DecodeIndexKeyPrefix(key kv.Key) (tableID int64, indexID int64, indexValues []byte, err error) {
-	/* Your code here */
+	if len(key) < RecordRowKeyLen {
+		return 0, 0, nil, errors.New("invalid key")
+	}
+	var leftOverSlice []byte
+	if leftOverSlice, tableID, err = codec.DecodeInt(key[tablePrefixLength : tablePrefixLength+idLen]); len(leftOverSlice) != 0 {
+		return 0, 0, nil, errors.New("invalid table ID")
+	}
+	if err != nil {
+		return 0, 0, nil, err
+	}
+
+	if leftOverSlice, indexID, err = codec.DecodeInt(key[prefixLen : prefixLen+idLen]); len(leftOverSlice) != 0 {
+		return 0, 0, nil, errors.New("invalid indexID")
+	}
+	if err != nil {
+		return 0, 0, nil, err
+	}
+	if len(key) >= RecordRowKeyLen {
+		indexValues = key[RecordRowKeyLen:]
+	}
 	return tableID, indexID, indexValues, nil
 }
 
