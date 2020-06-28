@@ -29,3 +29,36 @@ jobs:
     
     - name: Test proj2
       run: go test -v ./parser -check.f TestDMLStmt
+
+    - name: Test proj3
+      run: |
+        go test -v ./ddl -check.f TestColumnChange 
+        go test -v ./ddl -check.f TestDropColumn 
+    
+    - name: Test proj4
+      run: |
+        go test -v ./planner/core -check.f TestPredicatePushDown
+        go test -v ./planner/cascades
+        go test -v ./statistics -check.f TestCMSketch
+        go test -v ./statistics -check.f TestCMSketchCoding
+
+    - name: Test proj5
+      run: |
+        go test -v ./expression
+        go test -v ./executor -check.f TestJoin
+        go test -v ./executor -check.f TestMergeJoin
+        go test -v ./executor -check.f TestMultiJoin
+        go test -v ./executor -check.f TestJoinLeak
+        go test -v ./executor -check.f TestHashJoinExecEncodeDecodeRow
+        go test -v ./executor -check.f TestIssue5255
+        go test -v ./executor -check.f TestIssue5278
+        go test -v ./executor -check.f TestMergejoinOrder
+        go test -v ./executor -check.f TestEmbeddedOuterJoin
+        go test -v ./executor -check.f TestInjectProjOnTopN
+        go test -v ./executor -check.f TestSelectDistinct
+        go test -v ./executor -check.f TestAggPushDown
+        go test -v ./executor -check.f TestAggEliminator
+        go test -v ./executor -check.f TestInjectProjBelowTopN
+        
+        
+      
