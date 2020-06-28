@@ -56,9 +56,11 @@ jobs:
         go test -v ./executor -check.f TestEmbeddedOuterJoin
         go test -v ./executor -check.f TestInjectProjOnTopN
         go test -v ./executor -check.f TestSelectDistinct
-        go test -v ./executor -check.f TestAggPushDown
         go test -v ./executor -check.f TestAggEliminator
         go test -v ./executor -check.f TestInjectProjBelowTopN
+    
+    - name: Test Failed
+      run: go test -v ./executor -check.f TestAggPushDown
         
         
       
