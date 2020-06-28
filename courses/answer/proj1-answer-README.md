@@ -2,11 +2,9 @@
 
 ## 概述
 
-代码实现了 [DecodeRecordKey](https://github.com/Andrewmatilde/tinysql/blob/course/tablecodec/tablecodec.go#L73)和 [DecodeIndexKeyPrefix](https://github.com/Andrewmatilde/tinysql/blob/course/tablecodec/tablecodec.go#L108).
+参照对应的编码过程，代码实现了[DecodeRecordKey](https://github.com/Andrewmatilde/tinysql/blob/course/tablecodec/tablecodec.go#L73)和 [DecodeIndexKeyPrefix](https://github.com/Andrewmatilde/tinysql/blob/course/tablecodec/tablecodec.go#L108).
 
-基本上是按照对应的编码过程进行解码，
-
-Key 组成部分会存在不合法情况，已经进行长度判断，如果不符合，会触发错误。
+Key 组成部分基本固定，解码过程中会进行长度判断，针对不合法情况，进行报错。
 
 
 

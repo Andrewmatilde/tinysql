@@ -2,11 +2,13 @@
 
 ## 概述
 
-完成 `JoinTable`即可，实际上会一点Parser相关知识就容易很多。
+完成 了parser.y中的`JoinTable`内容
 
-第一，编译附送的goyacc工具，相信很多人会既没看Makefile也没看到有个goyacc文件夹
+编译附送的goyacc工具
 
-第二，编写JoinTable相关的代码，基本上照着MySQL的文档写就行了，制导翻译部分去看看ast的定义填就行
+参考MySQL文档中的产生式，编写JoinTable相关的代码。
+
+按照AST中节点的定义，完成制导翻译部分
 
 ## 推荐材料
 
@@ -20,7 +22,9 @@
 
 
 
-Tip: 建议增加一些测试，Parser写的不对，会出现之后别的地方出问题，还比较难发现问题所在
+Tip1: 建议增加一些测试，Parser写的不对，会出现之后别的地方出问题，还比较难发现问题所在
 
-Tip: 同样建议把原有的/* Your code here */这种提示改成和后面统一的TODO的模式
+Tip2: 同样建议把原有的/* Your code here */这种提示改成和后面统一的TODO的模式
+
+Tip3:建议增加引导，可能很多人会既没看Makefile也没看到有个goyacc文件夹
 
