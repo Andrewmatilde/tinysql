@@ -811,6 +811,7 @@ import (
 	InsertValues			"Rest part of INSERT/REPLACE INTO statement"
 	JoinTable 			"join table"
 	JoinType			"join type"
+	OnCondition			"on condition"
 	LocationLabelList		"location label name list"
 	LikeEscapeOpt 			"like escape option"
 	LikeTableWithOrWithoutParen	"LIKE table_name or ( LIKE table_name )"
@@ -2099,8 +2100,8 @@ DropTableStmt:
 
 OptTemporary:
 	  /* empty */ { $$ = false; }
-	| "TEMPORARY" 
-	{ 
+	| "TEMPORARY"
+	{
 		$$ = true
 		yylex.AppendError(yylex.Errorf("TiDB doesn't support TEMPORARY TABLE, TEMPORARY will be parsed but ignored."))
 		parser.lastErrorAsWarn()
@@ -3805,11 +3806,24 @@ IndexHintListOpt:
 
 JoinTable:
 	/* Use %prec to evaluate production TableRef before cross join */
-	TableRef CrossOpt TableRef %prec tableRefPriority
+	TableRef CrossOpt TableRef  %prec tableRefPriority
 	{
 		$$ = &ast.Join{Left: $1.(ast.ResultSetNode), Right: $3.(ast.ResultSetNode), Tp: ast.CrossJoin}
 	}
-	/* Your code here. */
+|	TableRef CrossOpt TableRef OnCondition  %prec tableRefPriority
+	{
+		$$ = &ast.Join{Left: $1.(ast.ResultSetNode), Right: $3.(ast.ResultSetNode), Tp: ast.CrossJoin, On:$4.(*ast.OnCondition)}
+	}
+|	TableRef JoinType OuterOpt CrossOpt TableRef OnCondition  %prec tableRefPriority
+	{
+		$$ = &ast.Join{Left: $1.(ast.ResultSetNode), Right: $5.(ast.ResultSetNode), Tp: $2.(ast.JoinType), On:$6.(*ast.OnCondition)}
+	}
+
+OnCondition:
+	on Expression
+	{
+		$$ = &ast.OnCondition{Expr:$2.(ast.ExprNode)}
+	}
 
 JoinType:
 	"LEFT"
